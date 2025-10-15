@@ -1,0 +1,41 @@
+{
+  "name": "QYL-ListView",
+  "author": "QYL",
+  "url": "https://github.com/QYLexpired/QYL-ListView",
+  "version": "1.0",
+  "minAppVersion": "3.3.0",
+  "backends": [
+    "all"
+  ],
+  "frontends": [
+    "all"
+  ],
+  "disabledInPublish": false,
+  "displayName": {
+    "default": "ListView",
+    "zh_CN": "列表视图"
+  },
+  "description": {
+    "default": "Convert lists to mind maps, tables, kanbans, and timelines",
+    "zh_CN": "将列表转化为脑图、表格、看板、时间轴"
+  },
+  "readme": {
+    "default": "README.md",
+    "zh_CN": "README_zh_CN.md"
+  },
+  "funding": {
+    "custom": [
+      "https://ifdian.net/a/QYLexpired"
+    ]
+  },
+  "keywords": [
+    "脑图",
+    "看板",
+    "表格",
+    "时间轴"
+  ],
+  "i18n": [
+    "en_US",
+    "zh_CN"
+  ]
+}
