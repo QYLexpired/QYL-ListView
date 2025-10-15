@@ -2,7 +2,7 @@
   "name": "QYL-ListView",
   "author": "QYL",
   "url": "https://github.com/QYLexpired/QYL-ListView",
-  "version": "1.0",
+  "version": "1.1",
   "minAppVersion": "3.3.0",
   "backends": [
     "all"
@@ -12,7 +12,7 @@
   ],
   "disabledInPublish": false,
   "displayName": {
-    "default": "ListView",
+    "default": "List View",
     "zh_CN": "列表视图"
   },
   "description": {
@@ -29,13 +29,6 @@
     ]
   },
   "keywords": [
-    "脑图",
-    "看板",
-    "表格",
-    "时间轴"
-  ],
-  "i18n": [
-    "en_US",
-    "zh_CN"
+    "列表转换"
   ]
 }
