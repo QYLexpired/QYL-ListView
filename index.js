@@ -130,17 +130,17 @@ class Plugin extends siyuan.Plugin {
             let button = document.createElement("button");
             button.id = "QYL-ListView";
             button.className = "b3-menu__item";
-            button.innerHTML = `<svg class="b3-menu__icon"><use xlink:href="#iconList"></use></svg><span class="b3-menu__label" style="">${this.i18n.listview}</span><svg class="b3-menu__icon b3-menu__icon--arrow" style="height: 10px;width: 10px;line-height: 10px;"><use xlink:href="#iconRight"></use></svg></button>`;
+            button.innerHTML = `<svg class="b3-menu__icon"><use xlink:href="#iconList"></use></svg><span class="b3-menu__label" style="">${this.i18n.listview}</span><svg class="b3-menu__icon b3-menu__icon--small"><use xlink:href="#iconRight"></use></svg></button>`;
             button.appendChild(createListViewSubmenu(selectid));
             return button;
         };
         const createListViewSubmenu = (selectid) => {
             const items = [
-                createMenuItem(this.i18n.listviewmindmap, "#iconGlobalGraph", "list-view", "脑图", selectid),
-                createMenuItem(this.i18n.listviewkanban, "#iconMenu", "list-view", "看板", selectid),
-                createMenuItem(this.i18n.listviewtable, "#iconTable", "list-view", "表格", selectid),
-                createMenuItem(this.i18n.listviewtimeline, "#iconClock", "list-view", "时间轴", selectid),
-                createMenuItem(this.i18n.listviewlist, "#iconList", "list-view", "列表", selectid)
+                createMenuItem(this.i18n.listviewmindmap, "#iconGlobalGraph", "list-view", "mindmap", selectid),
+                createMenuItem(this.i18n.listviewkanban, "#iconMenu", "list-view", "kanban", selectid),
+                createMenuItem(this.i18n.listviewtable, "#iconTable", "list-view", "table", selectid),
+                createMenuItem(this.i18n.listviewtimeline, "#iconClock", "list-view", "timeline", selectid),
+                createMenuItem(this.i18n.listviewlist, "#iconList", "list-view", "list", selectid)
             ];
             return createSubmenu("QYLListViewSub", items);
         };
