@@ -1,0 +1,59 @@
+.protyle-wysiwyg [data-node-id].list[data-node-id][data-type="NodeList"]:is([custom-list-view="表格"], [custom-list-view="table"]) {
+	display: grid;
+	width: calc(100% - 8px);
+	padding: 10px;
+	overflow-x: scroll;
+    & .li {
+        display: flex;
+        outline: 1px solid var(--QYL-list-view-border);
+        background-color: var(--b3-theme-background);
+        border-radius: 0px;
+        flex-direction: unset;
+        margin: 0;
+        &::before {
+            display: none;
+        }
+        & > div {
+            margin-right: 20px;
+        }
+        & .list {
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            outline: 1px solid var(--QYL-list-view-border);
+            border-radius: 0px;
+            & > .li:first-child:nth-last-child(2) {
+                top: 50%;
+                transform: translateY(-50%);
+                height: 100%;
+            }
+        }
+        & > .protyle-action {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.38;
+        }
+    }
+    & [data-node-id].li > [data-node-id] {
+        margin-left: 6px;
+    }
+    & .p {
+        flex: 1;
+        left: 18px;
+        text-align: left;
+        align-items: center;
+        display: flex;
+        min-width: 120px;
+        min-height: 30px;
+        height: auto;
+        margin: 0;
+    }
+    & .li > .list > .li {
+        outline: none;
+        border-top: 1px solid var(--QYL-list-view-border);
+        &:first-of-type {
+            border-top: none;
+        }
+    }
+}

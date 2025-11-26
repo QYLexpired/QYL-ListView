@@ -1,0 +1,28 @@
+.protyle-wysiwyg [data-node-id].list:is([custom-list-view="看板"], [custom-list-view="kanban"]) {
+    display: grid;
+    flex-direction: row;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+    & > .li{
+        min-width: 200px;
+        padding: 10px;
+        border-radius: 8px;
+        margin: 0;
+        background-color: rgb(from var(--b3-theme-surface) r g b / 0.8);
+        & > [data-node-id]{
+            margin-left: 0px;
+            margin-bottom: 0px;
+        }
+        & > .protyle-action {
+            display: none;
+            & + [data-node-id] {
+                color: var(--QYL-list-view-primary);
+                font-weight: bold;
+                padding: 0 0 0 10px;
+            }
+        }
+        &::before {
+            display: none;
+        }
+    }
+}

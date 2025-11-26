@@ -1,0 +1,126 @@
+.protyle-wysiwyg [data-node-id].list:is([custom-list-view="脑图"], [custom-list-view="mindmap"])  {
+	overflow-x: scroll;
+	padding: 10px;
+	background-color: var(--b3-theme-background);
+	& > .li {
+		&::before {
+			display: none;
+		}
+		&::after {
+			display: none;
+		}
+	}
+	& .li {
+		display: flex;
+		flex-direction: unset;
+		margin: 0;
+		&:first-child {
+			&::before {   
+				border-radius: 8px 0 0 0 ;
+			}
+			&::after {
+				border:none !important;
+			}
+		}
+		&:nth-last-child(2) {
+			&::before {   
+				border:none !important;    
+			}
+			&::after {   
+				border-bottom: 1.5px solid var(--b3-theme-surface-lighter) !important;    
+				border-radius: 0 0 0 8px !important;    
+			}
+		}
+		& .list {
+			padding: 0px;
+			margin: 0px;
+			transition: all 0.5s;
+			& > .li:first-child {
+				&:nth-last-child(2) {
+					top: 50%;
+					transform: translateY(-50%);
+					&::after {   
+						border-radius: 0px !important;
+					}
+				}
+			}
+			&::after {   
+				content: '';   
+				position: absolute; 
+				left: -4px; 
+				top: 50%;   
+				border-top: 1.5px solid var(--QYL-list-view-border);   
+				width: 25px; 
+				height: 0;  
+			}
+		}
+		& > .list {
+			margin-left: 20px;
+			margin-right: -20px;
+			padding-left: 20px;
+			& > .li:first-child:nth-last-child(2) {
+				top: 50%;
+				transform: translateY(-50%);
+			}
+		}
+		&::before {
+			content: '';   
+			position: absolute;  
+			top: 50% !important;   
+			border-top: 1.5px solid var(--QYL-list-view-border); 
+			width: 20px;  
+			height: 50%;
+			bottom: 50%;    
+			border-left: 1.5px solid var(--QYL-list-view-border); 
+			left: 0px;
+			opacity: 1;
+		}
+		&::after {   
+			content: '';   
+			position: absolute;   
+			border-left: 1.5px solid var(--QYL-list-view-border); 
+			width: 22px;  
+			height: 50%; 
+		}
+		& > .protyle-action {
+			top: 50%;
+			left: 20px;
+			z-index: 2;
+			position: absolute;
+			transform: translateY(-50%);
+			opacity: 1;
+			&:is([data-subtype="u"] .li > .protyle-action) {
+				display: none;
+			}
+			&:not([data-subtype="t"] .li > .protyle-action) {
+				opacity: 0.38;
+				&::before {
+					display: none;
+				}
+			}
+			& + [data-node-id] {
+				display: flex;
+				align-items: center;
+				left: 20px;
+				margin: 0;
+				flex-shrink: 0;
+				& [spellcheck] {
+					margin-left: -2px;
+					padding: 5px 10px;
+					margin-top: 2px;
+					background-color: rgb(from var(--b3-theme-surface) r g b / 0.8);
+					border-radius: 8px;
+					outline: 1px solid var(--QYL-list-view-border);
+					max-width: 15vw;
+					min-width: 50px;
+					&:is([data-subtype="o"] > [data-node-id] > [spellcheck]) {
+						padding: 5px 10px 5px 30px;
+					}
+					&:is([data-subtype="t"] > [data-node-id] > [spellcheck]) {
+						padding: 5px 10px 5px 30px;
+					}
+				}
+			}
+		}
+	}
+}

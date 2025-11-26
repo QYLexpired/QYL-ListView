@@ -1,0 +1,130 @@
+@use "./public.scss" as *;
+// 无序列表转时间轴
+.protyle-wysiwyg [data-node-id].list[data-subtype="u"]:is([custom-list-view="时间轴"], [custom-list-view="timeline"]) {
+    & > .li {
+        margin-top: 0;
+        margin-bottom: 0;
+        & > .protyle-action {
+            top: 0;
+            left: 109px;
+            color: var(--QYL-list-view-primary);
+            transform: scale(1.5);
+            &::before {
+                background: var(--QYL-list-view-primary);
+            }
+            & + [data-node-id] {
+                margin-left: 0;
+                max-width: 120px;
+                color: var(--QYL-list-view-primary);
+                font-weight: bold;
+                position: absolute;
+                left: 0px;
+                & ~ [data-node-id] {
+                    margin-left: 110px;
+                    margin-top: 0;
+                    & > .li {
+                        & > .protyle-action {
+                            opacity: 0;
+                        }
+                        &::before {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+        &::before {
+            height: 100%;
+            border-left: 2px solid var(--QYL-list-view-border);
+            top: 0;
+            left: 125px;
+            opacity: 1;
+        }
+    }
+}
+// 有序列表转时间轴
+.protyle-wysiwyg [data-node-id].list[data-subtype="o"]:is([custom-list-view="时间轴"], [custom-list-view="timeline"]) {
+    & > .li {
+        margin-top: 0;
+        margin-bottom: 0;
+        & > .protyle-action {
+            top: 0;
+            left: 109px;
+            color: transparent;
+            &::after {
+                border-radius: 50%;
+                background-color: var(--QYL-list-view-primary);
+                mix-blend-mode: normal;
+                width: 10px;
+                height: 10px;
+                top: 50%;
+                left: 50%;
+                margin: -5px;
+                color: transparent;
+            }
+            & + [data-node-id] {
+                margin-left: 0;
+                max-width: 120px;
+                color: var(--QYL-list-view-primary);
+
+                font-weight: bold;
+                position: absolute;
+                left: 0px;
+                & ~ [data-node-id] {
+                    margin-left: 110px;
+                    margin-top: 0;
+                    & > .li {
+                        & > .protyle-action {
+                            opacity: 0;
+                        }
+                        &::before {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+        &::before {
+            height: 100%;
+            border-left: 2px solid var(--QYL-list-view-border);
+            top: 0;
+            left: 125px;
+            opacity: 1;
+        }
+    }
+}
+// 任务列表转时间轴
+.protyle-wysiwyg [data-node-id].list[data-subtype="t"]:is([custom-list-view="时间轴"], [custom-list-view="timeline"]) {
+    & > .li {
+        margin-top: 0;
+        margin-bottom: 0;
+        & > .protyle-action {
+            top: 0;
+            left: 109px;
+            & + [data-node-id] {
+                margin-left: 0;
+                max-width: 120px;
+                color: var(--QYL-list-view-primary);
+                font-weight: bold;
+                position: absolute;
+                left: 0px;
+                & ~ [data-node-id] {
+                    margin-left: 150px;
+                    margin-top: 0;
+                    & > .li {
+                        &::before {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+        &::before {
+            height: 100%;
+            border-left: 2px solid var(--QYL-list-view-border);
+            top: 0;
+            left: 125px;
+            opacity: 1;
+        }
+    }
+}

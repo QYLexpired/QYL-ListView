@@ -1,0 +1,9 @@
+.DS_Store
+node_modules
+*.log
+dist
+tmp
+*.tmp
+*.swp
+Thumbs.db
+

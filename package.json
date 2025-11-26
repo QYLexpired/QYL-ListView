@@ -1,0 +1,22 @@
+{
+  "name": "qyl-listview",
+  "version": "1.0.0",
+  "description": "In the block menu of list blocks, a list view option appears that can convert lists to: mind maps, tables, kanban boards, timelines",
+  "main": "index.js",
+  "scripts": {
+    "build:ts": "tsc",
+    "minify:js": "terser index.js -c -m -o index.js",
+    "build:scss": "sass src/index.scss index.css --no-source-map --style=compressed",
+    "build": "npm run build:ts && npm run minify:js && npm run build:scss"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "terser": "^5.36.0",
+    "sass": "^1.94.2",
+    "typescript": "^5.9.3"
+  }
+}
