@@ -16,7 +16,7 @@
 		margin: 0;
 		&:first-child {
 			&::before {   
-				border-radius: 8px 0 0 0 ;
+				border-radius: 14px 0 0 0 ;
 			}
 			&::after {
 				border:none !important;
@@ -27,8 +27,8 @@
 				border:none !important;    
 			}
 			&::after {   
-				border-bottom: 1.5px solid var(--b3-theme-surface-lighter) !important;    
-				border-radius: 0 0 0 8px !important;    
+				border-bottom: 1.5px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter)) !important;    
+				border-radius: 0 0 0 14px !important;    
 			}
 		}
 		& .list {
@@ -49,7 +49,7 @@
 				position: absolute; 
 				left: -4px; 
 				top: 50%;   
-				border-top: 1.5px solid var(--QYL-list-view-border);   
+				border-top: 1.5px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter));   
 				width: 25px; 
 				height: 0;  
 			}
@@ -67,18 +67,18 @@
 			content: '';   
 			position: absolute;  
 			top: 50% !important;   
-			border-top: 1.5px solid var(--QYL-list-view-border); 
+			border-top: 1.5px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter)); 
 			width: 20px;  
 			height: 50%;
 			bottom: 50%;    
-			border-left: 1.5px solid var(--QYL-list-view-border); 
+			border-left: 1.5px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter)); 
 			left: 0px;
 			opacity: 1;
 		}
 		&::after {   
 			content: '';   
 			position: absolute;   
-			border-left: 1.5px solid var(--QYL-list-view-border); 
+			border-left: 1.5px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter)); 
 			width: 22px;  
 			height: 50%; 
 		}
@@ -90,7 +90,7 @@
 			transform: translateY(-50%);
 			opacity: 1;
 			&:is([data-subtype="u"] .li > .protyle-action) {
-				display: none;
+				visibility: hidden;
 			}
 			&:not([data-subtype="t"] .li > .protyle-action) {
 				opacity: 0.38;
@@ -109,8 +109,8 @@
 					padding: 5px 10px;
 					margin-top: 2px;
 					background-color: rgb(from var(--b3-theme-surface) r g b / 0.8);
-					border-radius: 8px;
-					outline: 1px solid var(--QYL-list-view-border);
+					corner-shape: superellipse(1.4);
+        			border-radius: 14px;
 					max-width: 15vw;
 					min-width: 50px;
 					&:is([data-subtype="o"] > [data-node-id] > [spellcheck]) {

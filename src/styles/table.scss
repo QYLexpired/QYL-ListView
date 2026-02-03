@@ -5,7 +5,7 @@
 	overflow-x: scroll;
     & .li {
         display: flex;
-        outline: 1px solid var(--QYL-list-view-border);
+        outline: 1px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter));
         background-color: var(--b3-theme-background);
         border-radius: 0px;
         flex-direction: unset;
@@ -20,7 +20,7 @@
             padding: 0px;
             margin: 0px;
             width: 100%;
-            outline: 1px solid var(--QYL-list-view-border);
+            outline: 1px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter));
             border-radius: 0px;
             & > .li:first-child:nth-last-child(2) {
                 top: 50%;
@@ -51,7 +51,7 @@
     }
     & .li > .list > .li {
         outline: none;
-        border-top: 1px solid var(--QYL-list-view-border);
+        border-top: 1px solid var(--b3-border-color-trans, var(--b3-theme-surface-lighter));
         &:first-of-type {
             border-top: none;
         }

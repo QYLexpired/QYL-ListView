@@ -6,7 +6,8 @@
     & > .li{
         min-width: 200px;
         padding: 10px;
-        border-radius: 8px;
+        corner-shape: superellipse(1.4);
+        border-radius: 14px;
         margin: 0;
         background-color: rgb(from var(--b3-theme-surface) r g b / 0.8);
         & > [data-node-id]{
@@ -14,9 +15,9 @@
             margin-bottom: 0px;
         }
         & > .protyle-action {
-            display: none;
+            visibility: hidden;
             & + [data-node-id] {
-                color: var(--QYL-list-view-primary);
+                color: var(--b3-theme-accent, var(--b3-theme-primary));
                 font-weight: bold;
                 padding: 0 0 0 10px;
             }
