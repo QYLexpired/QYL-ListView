@@ -1,3 +1,5 @@
+# macOS
+__MACOSX/
 .DS_Store
 node_modules
 *.log
@@ -6,4 +8,3 @@ tmp
 *.tmp
 *.swp
 Thumbs.db
-

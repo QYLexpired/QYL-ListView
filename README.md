@@ -1,5 +1,9 @@
 ### Updates
-- Fixed an issue where lists could not expand/collapse normally in mind map and kanban board views
-- Introduced superellipse (squircle) corner radii for mind map and kanban board styles
+- New feature: Convert lists to tabs
+- Redesigned all styles to adapt to Neo theme
 ### Usage
-Open the block menu of any list block and choose <span data-type="kbd">List View</span> to convert it into a mind map, table, kanban board, or timeline.
+- In the list block menu, go to <span data-type="kbd">Plugin</span> - <span data-type="kbd">​List View</span> to convert lists into mind maps, tables, kanban boards, timelines, or tabs
+### Important Notes
+- List-to-tab conversion is an experimental feature with the following known issues. Please do not use this feature if these issues concern you!!!
+    - Outdenting at the top level of a list will cause the editor to crash (restart to recover)
+    - When converting tabs to other view styles, content modified before conversion will visually disappear (restart to recover)

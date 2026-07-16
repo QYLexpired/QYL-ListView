@@ -1,0 +1,76 @@
+.protyle-wysiwyg [data-node-id].list {
+    &[custom-list-view="页签"],
+    &[custom-list-view="tab"] {
+        --_list-view-tab-shadow: 0 0 1px oklch(from var(--b3-theme-on-background) l c h / 0.3), 0 0 4px oklch(from var(--b3-theme-on-background) l c h / 0.08);
+        [data-theme-mode="dark"] & {
+            --_list-view-tab-shadow: 0 0 1px oklch(from var(--b3-theme-on-background) l c h / 0.55), 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+        overflow: hidden;
+        .tab-header-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .tab-headers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 12px;
+        }
+        .tab-header {
+            cursor: pointer;
+            border-radius: 9px;
+            color: var(--b3-theme-on-surface);
+            transition: 0.3s;
+            user-select: none;
+            white-space: nowrap;
+            padding: 0 12px;
+            position: relative;
+            & > [data-node-id] {
+                padding: 0;
+                margin: 0;
+                line-height: 2;
+            }
+            &:not(:first-child)::before {
+                content: "";
+                position: absolute;
+                left: -3.5px;
+                top: 50%;
+                transform: translateY(-50%);
+                background-color: oklch(from var(--b3-theme-on-background) l c h / 0.12);
+                height: calc(100% - 8px);
+                width: 1px;
+                pointer-events: none;
+                transition: var(--b3-transition);
+            }
+            &:hover {
+                color: var(--b3-theme-on-background);
+            }
+            &.active {
+                color: var(--b3-theme-on-background);
+                box-shadow: var(--_list-view-tab-shadow);
+                &::before {
+                    opacity: 0;
+                }
+                & + .tab-header {
+                    &::before {
+                        opacity: 0;
+                    }
+                }
+            }
+            .protyle-action {
+                display: none;
+            }
+        }
+        .tab-contents {
+            flex: 1;
+            overflow: auto;
+        }
+        .tab-content {
+            display: none;
+            padding: 0 6px;
+            &.active {
+                display: block;
+            }
+        }
+    }
+}

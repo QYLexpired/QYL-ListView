@@ -4,7 +4,6 @@
     // File Layout
     "rootDir": "src",
     "outDir": ".",
-
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "commonjs",
@@ -15,12 +14,10 @@
     // "lib": ["esnext"],
     // "types": ["node"],
     // and npm install -D @types/node
-
     // Other Outputs
     "sourceMap": false,
     "declaration": false,
     "declarationMap": false,
-
     // Style Options
     // "noImplicitReturns": true,
     // "noImplicitOverride": true,
@@ -28,7 +25,6 @@
     // "noUnusedParameters": true,
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
-
     // Recommended Options
     "strict": true,
     "isolatedModules": true,

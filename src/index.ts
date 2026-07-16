@@ -1,300 +1,185 @@
-const siyuan = require("siyuan");
-
-interface SelectedBlock {
-  id: string;
+import siyuan from "siyuan";
+interface IMenuItem {
+  iconHTML?: string;
+  label?: string;
+  click?: () => void;
+  submenu?: IMenuItem[];
+}
+interface ISubMenu {
+  addItem: (item: IMenuItem) => void;
+}
+interface BlockIconDetail {
+  blockElements: HTMLElement[];
+  menu: ISubMenu;
+}
+interface ViewConfig {
+  i18nKey: string;
+  icon: string;
   type: string;
 }
-
-interface QylListViewState {
-  plugin: QylListViewPlugin;
-  isClickMonitorActive: boolean;
-  commonMenuObserver: MutationObserver | null;
-  commonMenuElement: HTMLElement | null;
-  searchAttempts: number;
-  maxSearchAttempts: number;
-  searchInterval: number;
-  isCreatingListView: boolean;
-}
-
-type AttributeMap = Record<string, string>;
-
-class QylListViewPlugin extends siyuan.Plugin {
+const VIEWS: readonly ViewConfig[] = [
+  { i18nKey: "listviewmindmap",   icon: "#iconGlobalGraph", type: "mindmap" },
+  { i18nKey: "listviewkanban",    icon: "#iconMenu",        type: "kanban" },
+  { i18nKey: "listviewtable",     icon: "#iconTable",       type: "table" },
+  { i18nKey: "listviewtimeline",  icon: "#iconClock",       type: "timeline" },
+  { i18nKey: "listviewtab",       icon: "#iconDock",        type: "tab" },
+  { i18nKey: "listviewlist",      icon: "#iconList",        type: "" },
+];
+const attrName = "custom-list-view";
+const tabStateMap = new WeakMap<HTMLElement, { originalHTML: string }>();
+class ListViewPlugin extends siyuan.Plugin {
   public i18n!: Record<string, string>;
-  private qylListViewState: QylListViewState | null = null;
-
+  private blockIconHandler: ((event: CustomEvent<BlockIconDetail>) => void) | null = null;
+  private tabObserver: MutationObserver | null = null;
+  private tabDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   public onload(): void {
-    this.initQYLListView();
+    this.initListView();
+    this.scheduleTabInit();
   }
-
   public onunload(): void {
-    this.removeQYLListView();
+    this.removeListView();
+    this.cleanupTabObserver();
   }
-
   public uninstall(): void {
-    this.removeQYLListView();
+    this.removeListView();
+    this.cleanupTabObserver();
   }
-
-  private initQYLListView(): void {
-    if (this.qylListViewState) {
-      this.removeQYLListView();
-    }
-    this.createQYLListViewStandalone();
-  }
-
-  private removeQYLListView(): void {
-    if (!this.qylListViewState) {
-      return;
-    }
-    if (this.qylListViewState.commonMenuObserver) {
-      this.qylListViewState.commonMenuObserver.disconnect();
-      this.qylListViewState.commonMenuObserver = null;
-    }
-    this.qylListViewState.isClickMonitorActive = false;
-    this.qylListViewState.commonMenuElement = null;
-    this.qylListViewState.searchAttempts = 0;
-    this.qylListViewState.isCreatingListView = false;
-    this.qylListViewState = null;
-  }
-
-  private createQYLListViewStandalone(): void {
-    this.qylListViewState = {
-      plugin: this,
-      isClickMonitorActive: false,
-      commonMenuObserver: null,
-      commonMenuElement: null,
-      searchAttempts: 0,
-      maxSearchAttempts: 15,
-      searchInterval: 100,
-      isCreatingListView: false
+  private initListView(): void {
+    this.removeListView();
+    this.blockIconHandler = ({ detail }: CustomEvent<BlockIconDetail>): void => {
+      const { blockElements, menu } = detail;
+      const blockEl = blockElements?.[0];
+      if (!blockEl) return;
+      const blockId = blockEl.getAttribute("data-node-id");
+      const blockType = blockEl.getAttribute("data-type");
+      if (!blockId || blockType !== "NodeList") return;
+      if (!menu || typeof menu.addItem !== "function") return;
+      menu.addItem(this.buildMenuItem(blockId));
     };
-
-    const startCommonMenuMonitor = (): void => {
-      if (!this.qylListViewState || this.qylListViewState.isClickMonitorActive) {
-        return;
-      }
-      this.qylListViewState.isClickMonitorActive = true;
-      searchCommonMenu();
+    this.eventBus.on("click-blockicon", this.blockIconHandler);
+  }
+  private removeListView(): void {
+    if (this.blockIconHandler) {
+      this.eventBus.off("click-blockicon", this.blockIconHandler);
+      this.blockIconHandler = null;
+    }
+  }
+  private buildMenuItem(blockId: string): IMenuItem {
+    return {
+      iconHTML: `<svg class="b3-menu__icon"><use xlink:href="#iconList"></use></svg>`,
+      label: this.i18n.listview,
+      submenu: VIEWS.map(({ i18nKey, icon, type }) => ({
+        iconHTML: `<svg class="b3-menu__icon"><use xlink:href="${icon}"></use></svg>`,
+        label: this.i18n[i18nKey],
+        click: () => this.setListView(blockId, type)
+      }))
     };
-
-    const searchCommonMenu = (): void => {
-      if (!this.qylListViewState) {
-        return;
-      }
-      this.qylListViewState.commonMenuElement = document.querySelector<HTMLElement>("#commonMenu");
-      if (this.qylListViewState.commonMenuElement) {
-        setupCommonMenuObserver();
+  }
+  private async setListView(blockId: string, viewType: string): Promise<void> {
+    const blocks = document.querySelectorAll(`.protyle-wysiwyg [data-node-id="${blockId}"]`);
+    blocks.forEach((el) => {
+      el.setAttribute(attrName, viewType);
+      if (viewType === "tab") {
+        this.convertToTabView(el as HTMLElement);
       } else {
-        this.qylListViewState.searchAttempts += 1;
-        if (this.qylListViewState.searchAttempts < this.qylListViewState.maxSearchAttempts) {
-          setTimeout(searchCommonMenu, this.qylListViewState.searchInterval);
+        this.restoreFromTabView(el as HTMLElement);
+      }
+    });
+    try {
+      await fetch("/api/attr/setBlockAttrs", {
+        body: JSON.stringify({ id: blockId, attrs: { [attrName]: viewType } }),
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Token "
         }
-      }
-    };
-
-    const setupCommonMenuObserver = (): void => {
-      if (!this.qylListViewState || !this.qylListViewState.commonMenuElement) {
-        return;
-      }
-      if (this.qylListViewState.commonMenuObserver) {
-        this.qylListViewState.commonMenuObserver.disconnect();
-      }
-      this.qylListViewState.commonMenuObserver = new MutationObserver((mutations: MutationRecord[]) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === "attributes" && mutation.attributeName === "class") {
-            const target = mutation.target as HTMLElement;
-            const oldValue = mutation.oldValue ?? "";
-            const newValue = target.className;
-            const hadFnNone = oldValue.includes("fn__none");
-            const hasFnNone = newValue.includes("fn__none");
-            if (hadFnNone && !hasFnNone) {
-              handleCommonMenuShow();
-            }
-          }
-        });
       });
-      this.qylListViewState.commonMenuObserver.observe(this.qylListViewState.commonMenuElement, {
-        attributes: true,
-        attributeFilter: ["class"],
-        attributeOldValue: true
+    } catch {}
+  }
+  // ---- 页签视图 ----
+  private convertToTabView(listElement: HTMLElement): void {
+    if (tabStateMap.has(listElement)) return;
+    const children = listElement.querySelectorAll(":scope > .li");
+    if (children.length < 1) return;
+    tabStateMap.set(listElement, { originalHTML: listElement.innerHTML });
+    const headerContainer = document.createElement("div");
+    headerContainer.className = "tab-header-container";
+    const headers = document.createElement("div");
+    headers.className = "tab-headers";
+    const contentsContainer = document.createElement("div");
+    contentsContainer.className = "tab-contents";
+    children.forEach((li, index) => {
+      const firstChild = li.querySelector(":scope > [data-node-id]:not(.list)");
+      const subList = li.querySelector(":scope > .list");
+      const tabHeader = document.createElement("div");
+      tabHeader.className = `tab-header${index === 0 ? " active" : ""}`;
+      if (firstChild) tabHeader.appendChild(firstChild.cloneNode(true));
+      const tabContent = document.createElement("div");
+      tabContent.className = `tab-content${index === 0 ? " active" : ""}`;
+      if (subList) tabContent.appendChild(subList.cloneNode(true));
+      headers.appendChild(tabHeader);
+      contentsContainer.appendChild(tabContent);
+    });
+    headerContainer.appendChild(headers);
+    listElement.replaceChildren(headerContainer, contentsContainer);
+    headers.addEventListener("click", (event) => {
+      const clickedTab = (event.target as HTMLElement).closest(".tab-header");
+      if (!clickedTab) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const allTabs = headers.querySelectorAll(".tab-header");
+      const allContents = contentsContainer.querySelectorAll(".tab-content");
+      allTabs.forEach((t) => t.classList.remove("active"));
+      allContents.forEach((c) => c.classList.remove("active"));
+      clickedTab.classList.add("active");
+      const idx = Array.prototype.indexOf.call(allTabs, clickedTab);
+      if (idx >= 0) allContents[idx]?.classList.add("active");
+    });
+  }
+  private restoreFromTabView(listElement: HTMLElement): void {
+    const state = tabStateMap.get(listElement);
+    if (!state) return;
+    listElement.innerHTML = state.originalHTML;
+    tabStateMap.delete(listElement);
+  }
+  private scheduleTabInit(): void {
+    setTimeout(() => this.initTabViews(), 100);
+    this.tabObserver = new MutationObserver(() => {
+      if (this.tabDebounceTimer) clearTimeout(this.tabDebounceTimer);
+      this.tabDebounceTimer = setTimeout(() => {
+        this.tabDebounceTimer = null;
+        this.initTabViews();
+      }, 200);
+    });
+    this.tabObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: [attrName]
+    });
+  }
+  private initTabViews(): void {
+    document
+      .querySelectorAll(`.protyle-wysiwyg [data-type="NodeList"][${attrName}="tab"]`)
+      .forEach((el) => {
+        if (!tabStateMap.has(el as HTMLElement)) {
+          this.convertToTabView(el as HTMLElement);
+        }
       });
-    };
-
-    const handleCommonMenuShow = (): void => {
-      if (
-        !this.qylListViewState ||
-        this.qylListViewState.isCreatingListView ||
-        document.querySelector("#QYL-ListView")
-      ) {
-        return;
-      }
-      this.qylListViewState.isCreatingListView = true;
-      const blockInfo = getBlockSelected();
-      if (blockInfo && blockInfo.type === "NodeList") {
-        void insertQYLListView(blockInfo.id);
-      }
-      setTimeout(() => {
-        if (this.qylListViewState) {
-          this.qylListViewState.isCreatingListView = false;
-        }
-      }, 100);
-    };
-
-    const insertQYLListView = async (selectId: string): Promise<void> => {
-      const menu = getCommonMenu();
-      if (!menu) return;
-      const children = Array.from(menu.children);
-      const hasExport = children.find((child) => child.getAttribute("data-id") === "export");
-      const hasUpdate = children.find((child) => child.getAttribute("data-id") === "updateAndCreatedAt");
-      const attrItem = menu.querySelector("#QYL-ListView");
-      if (!hasExport && hasUpdate && !attrItem) {
-        const qylBtn = await createQYLListViewItem(selectId);
-        menu.insertBefore(qylBtn, hasUpdate);
-        if (qylBtn.nextSibling) {
-          menu.insertBefore(createMenuSeparator(), qylBtn.nextSibling);
-        } else {
-          menu.appendChild(createMenuSeparator());
-        }
-      }
-    };
-
-    const getCommonMenu = (): HTMLElement | null => {
-      return document.querySelector<HTMLElement>("#commonMenu .b3-menu__items");
-    };
-
-    const createMenuSeparator = (className = "b3-menu__separator"): HTMLButtonElement => {
-      const node = document.createElement("button");
-      node.className = className;
-      node.setAttribute("data-qyl-separator", "true");
-      return node;
-    };
-
-    const createQYLListViewItem = async (selectId: string): Promise<HTMLButtonElement> => {
-      const button = document.createElement("button");
-      button.id = "QYL-ListView";
-      button.className = "b3-menu__item";
-      button.innerHTML = `
-        <svg class="b3-menu__icon"><use xlink:href="#iconList"></use></svg>
-        <span class="b3-menu__label">${this.i18n.listview}</span>
-        <svg class="b3-menu__icon b3-menu__icon--small"><use xlink:href="#iconRight"></use></svg>
-      `;
-      button.appendChild(createListViewSubmenu(selectId));
-      return button;
-    };
-
-    const createListViewSubmenu = (selectId: string): HTMLDivElement => {
-      const items = [
-        createMenuItem(this.i18n.listviewmindmap, "#iconGlobalGraph", "list-view", "mindmap", selectId),
-        createMenuItem(this.i18n.listviewkanban, "#iconMenu", "list-view", "kanban", selectId),
-        createMenuItem(this.i18n.listviewtable, "#iconTable", "list-view", "table", selectId),
-        createMenuItem(this.i18n.listviewtimeline, "#iconClock", "list-view", "timeline", selectId),
-        createMenuItem(this.i18n.listviewlist, "#iconList", "list-view", "list", selectId)
-      ];
-      return createSubmenu("QYLListViewSub", items);
-    };
-
-    const createSubmenu = (id: string, items: HTMLElement[]): HTMLDivElement => {
-      const div = document.createElement("div");
-      div.id = id;
-      div.className = "b3-menu__submenu";
-      const itemsDiv = document.createElement("div");
-      itemsDiv.className = "b3-menu__items";
-      items.forEach((item) => {
-        itemsDiv.appendChild(item);
+  }
+  private cleanupTabObserver(): void {
+    document
+      .querySelectorAll(`.protyle-wysiwyg [data-type="NodeList"][${attrName}="tab"]`)
+      .forEach((el) => {
+        this.restoreFromTabView(el as HTMLElement);
+        el.removeAttribute(attrName);
       });
-      div.appendChild(itemsDiv);
-      return div;
-    };
-
-    const createMenuItem = (
-      label: string,
-      icon: string,
-      attrName: string,
-      attrValue: string,
-      selectId = ""
-    ): HTMLButtonElement => {
-      const button = document.createElement("button");
-      button.className = "b3-menu__item";
-      button.setAttribute("data-QYL-attr-id", selectId);
-      button.setAttribute("custom-attr-name", attrName);
-      button.setAttribute("custom-attr-value", attrValue);
-      button.innerHTML = `
-        <svg class="b3-menu__icon"><use xlink:href="${icon}"></use></svg>
-        <span class="b3-menu__label">${label}</span>
-      `;
-      button.onclick = async () => {
-        const id = button.getAttribute("data-QYL-attr-id");
-        const attrNamePartial = button.getAttribute("custom-attr-name");
-        const attrValueSelected = button.getAttribute("custom-attr-value");
-        if (!id || !attrNamePartial || !attrValueSelected) {
-          return;
-        }
-        const attrNameFull = `custom-${attrNamePartial}`;
-        try {
-          await setCustomAttribute(id, attrNameFull, attrValueSelected);
-        } catch {
-          // Ignore errors to avoid breaking menu interactions
-        }
-      };
-      return button;
-    };
-
-    const setCustomAttribute = async (id: string, attrName: string, attrValue: string): Promise<unknown> => {
-      const blocks = document.querySelectorAll<HTMLElement>(`.protyle-wysiwyg [data-node-id="${id}"]`);
-      blocks.forEach((block) => block.setAttribute(attrName, attrValue));
-      const attrs: AttributeMap = { [attrName]: attrValue };
-      return setBlockAttributes(id, attrs);
-    };
-
-    const setBlockAttributes = async (blockId: string, attributes: AttributeMap): Promise<unknown> => {
-      const response = await requestData("/api/attr/setBlockAttrs", {
-        id: blockId,
-        attrs: attributes
-      });
-      return parseResponse(response);
-    };
-
-    const requestData = async (url: string, data: Record<string, unknown>): Promise<unknown> => {
-      try {
-        const response = await fetch(url, {
-          body: JSON.stringify(data),
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Token "
-          }
-        });
-        return response.ok ? await response.json() : null;
-      } catch {
-        return null;
-      }
-    };
-
-    const parseResponse = (response: any): unknown => {
-      if (!response) return null;
-      return response.code === 0 ? response.data : null;
-    };
-
-    const _getSelectedElement = (selector: string): SelectedBlock | null => {
-      const nodeList = document.querySelectorAll<HTMLElement>(selector);
-      if (nodeList.length === 1) {
-        const node = nodeList[0];
-        if (node.dataset.nodeId) {
-          return {
-            id: node.dataset.nodeId,
-            type: node.dataset.type ?? ""
-          };
-        }
-      }
-      return null;
-    };
-
-    const getBlockSelected = (): SelectedBlock | null => {
-      return _getSelectedElement(".protyle-wysiwyg--select");
-    };
-
-    startCommonMenuMonitor();
+    this.tabObserver?.disconnect();
+    this.tabObserver = null;
+    if (this.tabDebounceTimer) {
+      clearTimeout(this.tabDebounceTimer);
+      this.tabDebounceTimer = null;
+    }
   }
 }
-
-module.exports = QylListViewPlugin;
-
+export default ListViewPlugin;
