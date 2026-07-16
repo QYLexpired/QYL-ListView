@@ -8,7 +8,7 @@
     "minify:js": "terser index.js -c -m -o index.js",
     "build:scss": "sass styles/index.scss index.css --no-source-map --style=compressed",
     "build": "npm run build:ts && npm run minify:js && npm run build:scss",
-    "package": "node build.js"
+    "package": "node build.mjs"
   },
   "keywords": [],
   "author": "",

@@ -24,10 +24,7 @@ await build({
     minify: true,
 });
 console.log('✅ TypeScript built: index.js');
-const pkg = JSON.parse(
-    (await import('fs/promises')).readFileSync(resolve(__dirname, 'package.json'), 'utf-8')
-);
-const zipName = `package-${pkg.version}.zip`;
+const zipName = 'package.zip';
 const zipPath = resolve(__dirname, zipName);
 if (existsSync(zipPath)) {
     rmSync(zipPath);
